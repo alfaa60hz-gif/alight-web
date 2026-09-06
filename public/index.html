@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Alight Login</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #27213d,
+          #0d0b13 55%
+        );
+
+      color: white;
+
+      font-family:
+        Inter,
+        Arial,
+        sans-serif;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 430px;
+      padding: 30px;
+
+      border-radius: 24px;
+
+      background:
+        rgba(25, 22, 35, .92);
+
+      border:
+        1px solid rgba(255,255,255,.08);
+
+      box-shadow:
+        0 25px 80px rgba(0,0,0,.45);
+
+      backdrop-filter: blur(15px);
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+
+      margin:
+        0 auto 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 17px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #8b5cf6,
+          #ec4899
+        );
+
+      font-size: 27px;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      margin: 8px 0 26px;
+
+      text-align: center;
+
+      color: #aaa5b5;
+
+      font-size: 14px;
+    }
+
+    .step {
+      padding: 16px;
+      margin-top: 15px;
+
+      border-radius: 15px;
+
+      background: #17141f;
+
+      border:
+        1px solid #2c2735;
+    }
+
+    .step-title {
+      margin-bottom: 12px;
+
+      font-size: 13px;
+      font-weight: 700;
+
+      color: #c9c2d5;
+    }
+
+    label {
+      display: block;
+
+      margin-bottom: 8px;
+
+      color: #d8d3df;
+
+      font-size: 13px;
+    }
+
+    input {
+      width: 100%;
+
+      padding: 14px 15px;
+
+      margin-bottom: 15px;
+
+      border:
+        1px solid #383242;
+
+      border-radius: 13px;
+
+      outline: none;
+
+      background: #111016;
+
+      color: white;
+
+      font-size: 14px;
+
+      transition: .2s;
+    }
+
+    input:focus {
+      border-color: #8b5cf6;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(139,92,246,.12);
+    }
+
+    button {
+      width: 100%;
+
+      padding: 14px;
+
+      border: 0;
+
+      border-radius: 13px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #8b5cf6,
+          #ec4899
+        );
+
+      color: white;
+
+      font-size: 14px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition: .2s;
+    }
+
+    button:hover {
+      transform:
+        translateY(-1px);
+
+      filter:
+        brightness(1.08);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #result {
+      display: none;
+
+      margin-top: 18px;
+
+      padding: 14px;
+
+      border-radius: 13px;
+
+      background: #111016;
+
+      border:
+        1px solid #302b39;
+
+      color: #cfc9d6;
+
+      font-size: 13px;
+
+      white-space: pre-wrap;
+
+      overflow-wrap: anywhere;
+    }
+
+    .loading {
+      opacity: .65;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="card">
+
+    <div class="logo">
+      A
+    </div>
+
+    <h1>
+      Alight Login
+    </h1>
+
+    <div class="subtitle">
+      Login menggunakan Email & Magic Link
+    </div>
+
+    <div class="step">
+
+      <div class="step-title">
+        01 — Kirim Link
+      </div>
+
+      <label for="email">
+        Email
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="nama@email.com"
+        autocomplete="email"
+      >
+
+      <button id="sendBtn">
+        Kirim Magic Link
+      </button>
+
+    </div>
+
+    <div class="step">
+
+      <div class="step-title">
+        02 — Verifikasi
+      </div>
+
+      <label for="link">
+        Magic Link
+      </label>
+
+      <input
+        id="link"
+        type="text"
+        placeholder="Paste Magic Link di sini"
+      >
+
+      <button id="verifyBtn">
+        Verifikasi & Login
+      </button>
+
+    </div>
+
+    <div id="result"></div>
+
+  </main>
+
+  <script>
+    const emailInput =
+      document.getElementById('email')
+
+    const linkInput =
+      document.getElementById('link')
+
+    const sendBtn =
+      document.getElementById('sendBtn')
+
+    const verifyBtn =
+      document.getElementById('verifyBtn')
+
+    const result =
+      document.getElementById('result')
+
+    function showResult(data) {
+      result.style.display = 'block'
+
+      if (typeof data === 'string') {
+        result.textContent = data
+        return
+      }
+
+      result.textContent =
+        JSON.stringify(
+          data,
+          null,
+          2
+        )
+    }
+
+    sendBtn.addEventListener(
+      'click',
+      async () => {
+
+        const email =
+          emailInput.value.trim()
+
+        if (!email) {
+          showResult(
+            'Masukkan email terlebih dahulu.'
+          )
+          return
+        }
+
+        sendBtn.disabled = true
+        sendBtn.classList.add('loading')
+        sendBtn.textContent = 'Mengirim...'
+
+        try {
+          const response =
+            await fetch(
+              '/api/send',
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body:
+                  JSON.stringify({
+                    email
+                  })
+              }
+            )
+
+          const data =
+            await response.json()
+
+          showResult(data)
+
+        } catch (error) {
+          showResult(
+            'Request gagal: ' +
+            error.message
+          )
+
+        } finally {
+          sendBtn.disabled = false
+          sendBtn.classList.remove(
+            'loading'
+          )
+
+          sendBtn.textContent =
+            'Kirim Magic Link'
+        }
+      }
+    )
+
+    verifyBtn.addEventListener(
+      'click',
+      async () => {
+
+        const email =
+          emailInput.value.trim()
+
+        const link =
+          linkInput.value.trim()
+
+        if (!email) {
+          showResult(
+            'Masukkan email terlebih dahulu.'
+          )
+          return
+        }
+
+        if (!link) {
+          showResult(
+            'Masukkan Magic Link terlebih dahulu.'
+          )
+          return
+        }
+
+        verifyBtn.disabled = true
+        verifyBtn.classList.add('loading')
+        verifyBtn.textContent =
+          'Memverifikasi...'
+
+        try {
+          const response =
+            await fetch(
+              '/api/verify',
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body:
+                  JSON.stringify({
+                    email,
+                    link
+                  })
+              }
+            )
+
+          const data =
+            await response.json()
+
+          showResult(data)
+
+        } catch (error) {
+          showResult(
+            'Request gagal: ' +
+            error.message
+          )
+
+        } finally {
+          verifyBtn.disabled = false
+          verifyBtn.classList.remove(
+            'loading'
+          )
+
+          verifyBtn.textContent =
+            'Verifikasi & Login'
+        }
+      }
+    )
+  </script>
+
+</body>
+</html>
